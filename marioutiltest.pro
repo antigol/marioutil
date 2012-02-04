@@ -13,3 +13,5 @@ SOURCES += main.cpp \
 
 HEADERS += \
     pointmap.h
+
+LIBS += -lgsl -lgslcblas

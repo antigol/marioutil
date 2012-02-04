@@ -4,27 +4,27 @@
 
 #include <iostream>
 
-int main(int argc, char *argv[])
+int main()
 {
-    QCoreApplication a(argc, argv);
-
     PointMap pl;
 
-    pl.loadFile("test.txt");
-
-    //    pl.insert(0,1);
-    //    pl.insert(2,3);
-    //    pl.insert(3,6);
-    //    pl.insert(5,7);
+    if (!pl.loadFile("test.txt")) {
+        qDebug() << "load error !";
+        return 1;
+    }
 
     qDebug() << pl;
 
-    qreal x = 6;
-    qreal y = pl.interpolate(x, PointMap::Interpolation4);
-    qDebug() << x << "," << y;
+    // interpole 10 fois entre chaque points
+    qreal step = (pl.xMaximum() - pl.xMinimum()) / (pl.size() * 10.0);
 
-    for (qreal x = -5; x <= 6; x += 0.1) {
-        std::cout << x << " " << pl.interpolate(x, PointMap::Interpolation4) << std::endl;
+    for (qreal x = pl.xMinimum(); x <= pl.xMaximum(); x += step) {
+        std::cout << x
+                  << " " << pl.interpolate(x, PointMap::Interpolation2)
+                  << " " << pl.interpolate(x, PointMap::Interpolation4)
+                  << " " << pl.interpolate(x, PointMap::Interpolation6)
+                  << " " << pl.spline(x)
+                  << std::endl;
     }
 
     return 0;

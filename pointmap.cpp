@@ -6,13 +6,22 @@
 #include <QDebug>
 
 PointMap::PointMap()
-    : QMap<qreal, qreal>()
+    : QMap<qreal, qreal>(), _acc(0), _spline(0)
 {
 }
 
 PointMap::PointMap(const QMap<qreal, qreal> &other)
-    : QMap<qreal, qreal>(other)
+    : QMap<qreal, qreal>(other), _acc(0), _spline(0)
 {
+}
+
+PointMap::~PointMap()
+{
+    if (_spline != 0)
+        gsl_spline_free(_spline);
+
+    if (_acc != 0)
+        gsl_interp_accel_free(_acc);
 }
 
 bool PointMap::loadFile(const QString &filePath)
@@ -52,6 +61,25 @@ bool PointMap::loadFile(const QString &filePath)
     return true;
 }
 
+qreal PointMap::xMinimum() const
+{
+    if (isEmpty())
+        return 0.0;
+
+    PointMap::const_iterator i = constBegin();
+    return i.key();
+}
+
+qreal PointMap::xMaximum() const
+{
+    if (isEmpty())
+        return 0.0;
+
+    PointMap::const_iterator i = constEnd();
+    i--;
+    return i.key();
+}
+
 qreal PointMap::interpolate(qreal x, PointMap::InterpolationType type)
 {
     if (contains(x))
@@ -61,14 +89,52 @@ qreal PointMap::interpolate(qreal x, PointMap::InterpolationType type)
     if (isEmpty())
         return 0.0;
 
-    if (type == Interpolation2 || size() <= 2)
+    if (type == Interpolation2 || size() < 4)
         return interpolate2(x);
 
-    if (type == Interpolation3 || size() <= 3)
-        return interpolate3(x);
+    if (type == Interpolation4 || size() < 6)
+        return interpolate4(x);
 
-    // il ne reste plus que type == Interpolation4
-    return interpolate4(x);
+    // il ne reste plus que type == Interpolation6
+    return interpolate6(x);
+}
+
+void PointMap::calculateSpline()
+{
+    // supprime l'ancienne spline
+    if (_spline != 0)
+        gsl_spline_free(_spline);
+
+    if (_acc != 0)
+        gsl_interp_accel_free(_acc);
+
+    _acc = gsl_interp_accel_alloc();
+    _spline = gsl_spline_alloc(gsl_interp_cspline, size());
+
+    QVector<qreal> x = keys().toVector();
+    QVector<qreal> y = values().toVector();
+
+    gsl_spline_init(_spline, x.constData(), y.constData(), size());
+}
+
+qreal PointMap::spline(qreal x)
+{
+    // retourne l'élément plus grand que x
+    PointMap::iterator i = upperBound(x);
+
+    // s'il n'y a pas d'éléments plus grand que x
+    if (i == constEnd())
+        return (--i).value();
+
+    // si l'élément retourné est le premier élément de la liste
+    if (i == constBegin())
+        return i.value();
+
+
+    if (_spline == 0 || _acc == 0)
+        calculateSpline();
+
+    return gsl_spline_eval(_spline, x, _acc);
 }
 
 qreal PointMap::interpolate2(qreal x)
@@ -97,40 +163,6 @@ qreal PointMap::interpolate2(qreal x)
     return m * (x - x0) + y0;
 }
 
-qreal PointMap::interpolate3(qreal x)
-{
-    // retourne l'élément plus grand que x
-    PointMap::iterator i = upperBound(x);
-
-    // s'il n'y a pas d'éléments plus grand que x
-    if (i == constEnd())
-        return (--i).value();
-
-    // si l'élément retourné est le premier élément de la liste
-    if (i == constBegin())
-        return i.value();
-
-    // on fait en sorte que i pointe sur le plus grand des quatres éléments (x3,y3)
-    i++;
-    if (i == constEnd())
-        i--;
-
-    qreal x3 = i.key();
-    qreal y3 = i.value();
-
-    i--;
-    qreal x2 = i.key();
-    qreal y2 = i.value();
-
-    i--;
-    qreal x1 = i.key();
-    qreal y1 = i.value();
-
-    return y1 * (x-x2)*(x-x3) / ((x1-x2)*(x1-x3))
-            + y2 * (x-x1)*(x-x3) / ((x2-x1)*(x2-x3))
-            + y3 * (x-x1)*(x-x2) / ((x3-x1)*(x3-x2));
-}
-
 qreal PointMap::interpolate4(qreal x)
 {
     // retourne l'élément plus grand que x
@@ -145,10 +177,65 @@ qreal PointMap::interpolate4(qreal x)
         return i.value();
 
 
-    // on fait en sorte que i pointe sur le plus grand des quatres éléments (x4,y4)
-    i++;
-    if (i == constEnd())
+    // comme i pointe sur l'élément plus grand que x, i pointe sur le point no3
+
+    // si i pointe sur le dernier élément, on le désincrémente
+    if (i + 1 == constEnd())
         i--;
+
+    // si i pointe sur le deuxième élément on l'incrémente
+    if (i - 1 == constBegin())
+        i++;
+
+    qreal x3 = i.key();
+    qreal y3 = i.value();
+
+    i--;
+    qreal x2 = i.key();
+    qreal y2 = i.value();
+
+    i--;
+    qreal x1 = i.key();
+    qreal y1 = i.value();
+
+    i += 3;
+    qreal x4 = i.key();
+    qreal y4 = i.value();
+
+    // merci Paul Bourke
+    return y1 * (x-x2)*(x-x3)*(x-x4) / ((x1-x2)*(x1-x3)*(x1-x4))
+            + y2 * (x-x1)*(x-x3)*(x-x4) / ((x2-x1)*(x2-x3)*(x2-x4))
+            + y3 * (x-x1)*(x-x2)*(x-x4) / ((x3-x1)*(x3-x2)*(x3-x4))
+            + y4 * (x-x1)*(x-x2)*(x-x3) / ((x4-x1)*(x4-x2)*(x4-x3));
+}
+
+qreal PointMap::interpolate6(qreal x)
+{
+    // retourne l'élément plus grand que x
+    PointMap::iterator i = upperBound(x);
+
+    // s'il n'y a pas d'éléments plus grand que x
+    if (i == constEnd())
+        return (--i).value();
+
+    // si l'élément retourné est le premier élément de la liste
+    if (i == constBegin())
+        return i.value();
+
+
+    // comme i pointe sur l'élément plus grand que x, i pointe sur le point no4
+
+    // si i pointe sur le dernier ou avant-dernier élément, on le désincrémente
+    if (i + 1 == constEnd())
+        i--;
+    if (i + 2 == constEnd())
+        i--;
+
+    // si i pointe sur le deuxième ou troisième élément on l'incrémente
+    if (i - 1 == constBegin())
+        i++;
+    if (i - 2 == constBegin())
+        i++;
 
     qreal x4 = i.key();
     qreal y4 = i.value();
@@ -165,9 +252,20 @@ qreal PointMap::interpolate4(qreal x)
     qreal x1 = i.key();
     qreal y1 = i.value();
 
+    i += 4;
+    qreal x5 = i.key();
+    qreal y5 = i.value();
+
+    i++;
+    qreal x6 = i.key();
+    qreal y6 = i.value();
+
     // merci Paul Bourke
-    return y1 * (x-x2)*(x-x3)*(x-x4) / ((x1-x2)*(x1-x3)*(x1-x4))
-            + y2 * (x-x1)*(x-x3)*(x-x4) / ((x2-x1)*(x2-x3)*(x2-x4))
-            + y3 * (x-x1)*(x-x2)*(x-x4) / ((x3-x1)*(x3-x2)*(x3-x4))
-            + y4 * (x-x1)*(x-x2)*(x-x3) / ((x4-x1)*(x4-x2)*(x4-x3));
+    return
+            y1 * (x-x2)*(x-x3)*(x-x4)*(x-x5)*(x-x6) / ((x1-x2)*(x1-x3)*(x1-x4)*(x1-x5)*(x1-x6)) +
+            y2 * (x-x1)*(x-x3)*(x-x4)*(x-x5)*(x-x6) / ((x2-x1)*(x2-x3)*(x2-x4)*(x2-x5)*(x2-x6)) +
+            y3 * (x-x1)*(x-x2)*(x-x4)*(x-x5)*(x-x6) / ((x3-x1)*(x3-x2)*(x3-x4)*(x3-x5)*(x3-x6)) +
+            y4 * (x-x1)*(x-x2)*(x-x3)*(x-x5)*(x-x6) / ((x4-x1)*(x4-x2)*(x4-x3)*(x4-x5)*(x4-x6)) +
+            y5 * (x-x1)*(x-x2)*(x-x3)*(x-x4)*(x-x6) / ((x5-x1)*(x5-x2)*(x5-x3)*(x5-x4)*(x5-x6)) +
+            y6 * (x-x1)*(x-x2)*(x-x3)*(x-x4)*(x-x5) / ((x6-x1)*(x6-x2)*(x6-x3)*(x6-x4)*(x6-x5));
 }
