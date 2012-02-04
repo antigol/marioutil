@@ -119,8 +119,15 @@ void PointMap::calculateSpline()
 
 qreal PointMap::spline(qreal x)
 {
+    if (contains(x))
+        return value(x);
+
+    // si la liste est vide on retourne 0
+    if (isEmpty())
+        return 0.0;
+
     // retourne l'élément plus grand que x
-    PointMap::iterator i = upperBound(x);
+    PointMap::const_iterator i = upperBound(x);
 
     // s'il n'y a pas d'éléments plus grand que x
     if (i == constEnd())
@@ -137,10 +144,41 @@ qreal PointMap::spline(qreal x)
     return gsl_spline_eval(_spline, x, _acc);
 }
 
+qreal PointMap::integrate(qreal a, qreal b)
+{
+    qreal result = 0.0;
+
+    qreal x1 = a;
+    qreal y1 = interpolate(a);
+
+    qreal x2;
+    qreal y2;
+
+    PointMap::const_iterator i = upperBound(a);
+    PointMap::const_iterator end = lowerBound(b);
+
+    while (i != end) {
+        x2 = i.key();
+        y2 = i.value();
+
+        result += (x2-x1) * (y1+y2) / 2.0;
+
+        x1 = x2;
+        y1 = y2;
+
+        i++;
+    }
+
+    x2 = b;
+    y2 = interpolate(b);
+
+    return result + (x2-x1) * (y1+y2) / 2.0;
+}
+
 qreal PointMap::interpolate2(qreal x)
 {
     // retourne l'élément plus grand que x
-    PointMap::iterator i = upperBound(x);
+    PointMap::const_iterator i = upperBound(x);
 
     // s'il n'y a pas d'éléments plus grand que x
     if (i == constEnd())
@@ -166,7 +204,7 @@ qreal PointMap::interpolate2(qreal x)
 qreal PointMap::interpolate4(qreal x)
 {
     // retourne l'élément plus grand que x
-    PointMap::iterator i = upperBound(x);
+    PointMap::const_iterator i = upperBound(x);
 
     // s'il n'y a pas d'éléments plus grand que x
     if (i == constEnd())
@@ -213,7 +251,7 @@ qreal PointMap::interpolate4(qreal x)
 qreal PointMap::interpolate6(qreal x)
 {
     // retourne l'élément plus grand que x
-    PointMap::iterator i = upperBound(x);
+    PointMap::const_iterator i = upperBound(x);
 
     // s'il n'y a pas d'éléments plus grand que x
     if (i == constEnd())

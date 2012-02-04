@@ -46,6 +46,11 @@ public:
     // si aucune spline n'a été calulée il lance calculateSpline automatiquement
     qreal spline(qreal x);
 
+
+    // intègre sur l'intervale [a,b]
+    // interpole linéairement pour integré (relie les point par des droites pour calculer l'aire)
+    qreal integrate(qreal a, qreal b);
+
 private:
     qreal interpolate2(qreal x);
     qreal interpolate4(qreal x);

@@ -3,6 +3,8 @@
 #include "pointmap.h"
 
 #include <iostream>
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_complex_math.h>
 
 int main()
 {
@@ -26,6 +28,13 @@ int main()
                   << " " << pl.spline(x)
                   << std::endl;
     }
+
+    pl.clear();
+    pl[1] = -1;
+    pl[15] = 13;
+    qDebug() << pl;
+
+    qDebug() << "itegral = " << pl.integrate(0, 10);
 
     return 0;
 }
