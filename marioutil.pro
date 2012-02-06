@@ -5,9 +5,11 @@ TARGET = marioutil
 TEMPLATE = lib
 
 SOURCES += \
-    pointmap.cpp
+    pointmap.cpp \
+    cmdlineparser.cpp
 HEADERS += \
-    pointmap.h
+    pointmap.h \
+    cmdlineparser.h
 
 LIBS += -lgsl -lgslcblas
 
