@@ -30,8 +30,10 @@ int main()
     }
 
     pl.clear();
-    pl[1] = -1;
-    pl[15] = 13;
+    pl[0] = 1;
+    pl[5] = 2;
+    pl.insertMulti(5, 3);
+    pl[10] = 1;
     qDebug() << pl;
 
     qDebug() << "itegral = " << pl.integrate(0, 10);

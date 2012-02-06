@@ -11,8 +11,9 @@ public:
     PointMap(const QMap<qreal, qreal> &other);
     ~PointMap();
 
-    // charge un fichier à deux colonnes séparées par un espace
-    bool loadFile(const QString &filePath);
+    // charge un fichier à colonnes séparées par un espace
+    // xIndex et yIndex sont les numéros des colonnes
+    bool loadFile(const QString &filePath, int xIndex = 0, int yIndex = 1);
 
 
     // la plus petite valeur x

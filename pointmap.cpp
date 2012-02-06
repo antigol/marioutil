@@ -24,7 +24,7 @@ PointMap::~PointMap()
         gsl_interp_accel_free(_acc);
 }
 
-bool PointMap::loadFile(const QString &filePath)
+bool PointMap::loadFile(const QString &filePath, int xIndex, int yIndex)
 {
     // ouvre le fichier
     QFile file(filePath);
@@ -41,20 +41,22 @@ bool PointMap::loadFile(const QString &filePath)
         // découpe la ligne par les éspaces
         QStringList elements = line.split(QRegExp("\\s+"));
 
-        if (elements.size() == 2) {
+        if (qMax(xIndex, yIndex) < elements.size()) {
             bool ok;
             qreal x, y;
 
-            x = elements.first().toDouble(&ok);
+            x = elements.at(xIndex).toDouble(&ok);
             if (ok == false) continue;
 
-            y = elements.last().toDouble(&ok);
+            y = elements.at(yIndex).toDouble(&ok);
             if (ok == false) continue;
 
             if (contains(x))
                 qDebug() << "There is already a value with key : " << x;
 
             insert(x, y);
+        } else {
+            qDebug() << "line skiped : " << line;
         }
     }
 
