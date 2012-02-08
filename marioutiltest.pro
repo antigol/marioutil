@@ -9,9 +9,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    pointmap.cpp
+    pointmap.cpp \
+    gslfunction.cpp \
+    cmdlineparser.cpp
 
 HEADERS += \
-    pointmap.h
+    pointmap.h \
+    configfile.h \
+    gslfunction.h \
+    cmdlineparser.h
 
 LIBS += -lgsl -lgslcblas

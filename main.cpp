@@ -1,13 +1,54 @@
 #include <QtCore/QCoreApplication>
 #include <QDebug>
 #include "pointmap.h"
+#include "gslfunction.h"
 
 #include <iostream>
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_complex_math.h>
+#include <gsl/gsl_integration.h>
+
+#include <QSettings>
+
+class MyClass : public GslFunction
+{
+public:
+    double function(double d, void *v) {
+        double *r = static_cast<double *>(v);
+        double dA = sin(d) * 2.0 * M_PI * gsl_pow_2(r[0]);
+        return dA;
+    }
+};
 
 int main()
 {
+    gsl_integration_workspace *w = gsl_integration_workspace_alloc (1000);
+
+    double result, error;
+    double alpha = M_PI_4;
+    double r = 3.0;
+    double expected = -2.0 * M_PI * r*r * (cos(alpha) - 1.0);
+
+    MyClass a;
+    gsl_function f = a.functor(&r);
+
+    gsl_integration_qags(&f, 0, alpha, 0, 1e-7, 1000, w, &result, &error);
+
+    printf ("result          = % .18f\n", result);
+    printf ("exact result    = % .18f\n", expected);
+    printf ("estimated error = % .18f\n", error);
+    printf ("actual error    = % .18f\n", result - expected);
+    printf ("intervals =  %ld\n", w->size);
+
+    gsl_integration_workspace_free (w);
+
+
+    return 0;
+
+    QSettings set("config.txt", QSettings::IniFormat);
+
+    qDebug() << set.value("test", "caca").toString();
+
+    return 0;
+
     PointMap pl;
 
     if (!pl.loadFile("test.txt")) {

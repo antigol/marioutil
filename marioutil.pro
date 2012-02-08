@@ -6,10 +6,12 @@ TEMPLATE = lib
 
 SOURCES += \
     pointmap.cpp \
-    cmdlineparser.cpp
+    cmdlineparser.cpp \
+    gslfunction.cpp
 HEADERS += \
     pointmap.h \
-    cmdlineparser.h
+    cmdlineparser.h \
+    gslfunction.h
 
 LIBS += -lgsl -lgslcblas
 
@@ -21,4 +23,3 @@ headers.files = $$HEADERS
 headers.path = /usr/local/include/marioutil
 
 INSTALLS += target headers
-
