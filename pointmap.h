@@ -43,7 +43,7 @@ public:
     // interpole la valeur y à partir de la valeur x.
     // utilise la méthode type à condition qu'il y aie assez d'éléments
     // si la valeur x n'est pas comprise dans les bornes, retourne la valeur à l'extrémité du map
-    qreal interpolate(qreal x, InterpolationType type = Interpolation2);
+    qreal interpolate(qreal x, InterpolationType type = Interpolation2) const;
 
 
     // calculateSpline calcule la courbe spline avec les éléments actuels
@@ -56,12 +56,12 @@ public:
 
     // intègre sur l'intervale [a,b]
     // interpole linéairement pour integré (relie les point par des droites pour calculer l'aire)
-    qreal integrate(qreal a, qreal b);
+    qreal integrate(qreal a, qreal b) const;
 
 private:
-    qreal interpolate2(qreal x);
-    qreal interpolate4(qreal x);
-    qreal interpolate6(qreal x);
+    qreal interpolate2(qreal x) const;
+    qreal interpolate4(qreal x) const;
+    qreal interpolate6(qreal x) const;
 
     gsl_interp_accel *_acc;
     gsl_spline *_spline;

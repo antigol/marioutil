@@ -100,7 +100,7 @@ qreal PointMap::xMaximum() const
     return i.key();
 }
 
-qreal PointMap::interpolate(qreal x, PointMap::InterpolationType type)
+qreal PointMap::interpolate(qreal x, PointMap::InterpolationType type) const
 {
     if (contains(x))
         return value(x);
@@ -164,7 +164,7 @@ qreal PointMap::spline(qreal x)
     return gsl_spline_eval(_spline, x, _acc);
 }
 
-qreal PointMap::integrate(qreal a, qreal b)
+qreal PointMap::integrate(qreal a, qreal b) const
 {
     qreal result = 0.0;
 
@@ -195,7 +195,7 @@ qreal PointMap::integrate(qreal a, qreal b)
     return result + (x2-x1) * (y1+y2) / 2.0;
 }
 
-qreal PointMap::interpolate2(qreal x)
+qreal PointMap::interpolate2(qreal x) const
 {
     // retourne l'élément plus grand que x
     PointMap::const_iterator i = upperBound(x);
@@ -221,7 +221,7 @@ qreal PointMap::interpolate2(qreal x)
     return m * (x - x0) + y0;
 }
 
-qreal PointMap::interpolate4(qreal x)
+qreal PointMap::interpolate4(qreal x) const
 {
     // retourne l'élément plus grand que x
     PointMap::const_iterator i = upperBound(x);
@@ -268,7 +268,7 @@ qreal PointMap::interpolate4(qreal x)
             y4 * (x-x1)*(x-x2)*(x-x3) / ((x4-x1)*(x4-x2)*(x4-x3));
 }
 
-qreal PointMap::interpolate6(qreal x)
+qreal PointMap::interpolate6(qreal x) const
 {
     // retourne l'élément plus grand que x
     PointMap::const_iterator i = upperBound(x);
