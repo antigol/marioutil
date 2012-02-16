@@ -2,6 +2,7 @@
 #define POINTMAP_H
 
 #include <QMap>
+#include <QRegExp>
 #include <gsl/gsl_spline.h>
 
 class PointMap : public QMap<qreal, qreal>
@@ -13,7 +14,7 @@ public:
 
     // charge un fichier à colonnes séparées par un espace
     // xIndex et yIndex sont les numéros des colonnes
-    bool loadFile(const QString &filePath, int xIndex = 0, int yIndex = 1);
+    bool loadFile(const QString &filePath, int xIndex = 0, int yIndex = 1, const QRegExp &sep = QRegExp("\\s+"));
 
 
     // la plus petite valeur x

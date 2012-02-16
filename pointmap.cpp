@@ -24,7 +24,7 @@ PointMap::~PointMap()
         gsl_interp_accel_free(_acc);
 }
 
-bool PointMap::loadFile(const QString &filePath, int xIndex, int yIndex)
+bool PointMap::loadFile(const QString &filePath, int xIndex, int yIndex, const QRegExp &sep)
 {
     // ouvre le fichier
     QFile file(filePath);
@@ -39,7 +39,7 @@ bool PointMap::loadFile(const QString &filePath, int xIndex, int yIndex)
         QString line = in.readLine();
 
         // découpe la ligne par les éspaces
-        QStringList elements = line.split(QRegExp("\\s+"));
+        QStringList elements = line.split(sep);
 
         if (qMax(xIndex, yIndex) < elements.size()) {
             bool ok;
