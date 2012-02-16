@@ -58,10 +58,16 @@ bool PointMap::loadFile(const QString &filePath, int xIndex, int yIndex, const Q
             qreal x, y;
 
             x = elements.at(xIndex).toDouble(&ok);
-            if (ok == false) continue;
+            if (ok == false) {
+                qDebug() << "line skiped : " << line;
+                continue;
+            }
 
             y = elements.at(yIndex).toDouble(&ok);
-            if (ok == false) continue;
+            if (ok == false) {
+                qDebug() << "line skiped : " << line;
+                continue;
+            }
 
             if (contains(x))
                 qDebug() << "There is already a value with key : " << x;
