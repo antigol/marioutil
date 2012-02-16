@@ -5,12 +5,17 @@
 #include <QRegExp>
 #include <gsl/gsl_spline.h>
 
+#include <QList>
+#include <QPointF>
+
 class PointMap : public QMap<qreal, qreal>
 {
 public:
     PointMap();
     PointMap(const QMap<qreal, qreal> &other);
     ~PointMap();
+
+    QList<QPointF> toPointList() const;
 
     // charge un fichier à colonnes séparées par un espace
     // xIndex et yIndex sont les numéros des colonnes

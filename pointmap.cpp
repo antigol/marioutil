@@ -24,6 +24,18 @@ PointMap::~PointMap()
         gsl_interp_accel_free(_acc);
 }
 
+QList<QPointF> PointMap::toPointList() const
+{
+    QList<QPointF> ret;
+
+    PointMap::const_iterator i = constBegin();
+    for (; i != constEnd(); ++i) {
+        ret << QPointF(i.key(), i.value());
+    }
+
+    return ret;
+}
+
 bool PointMap::loadFile(const QString &filePath, int xIndex, int yIndex, const QRegExp &sep)
 {
     // ouvre le fichier
