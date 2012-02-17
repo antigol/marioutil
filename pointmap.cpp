@@ -100,6 +100,38 @@ qreal PointMap::xMaximum() const
     return i.key();
 }
 
+qreal PointMap::yMinimum() const
+{
+    qreal min = 0.0;
+
+    PointMap::const_iterator i = constBegin();
+    if (i != constEnd()) {
+        min = i.value();
+    }
+
+    for (; i != constEnd(); ++i) {
+        min = qMin(min, i.value());
+    }
+
+    return min;
+}
+
+qreal PointMap::yMaximum() const
+{
+    qreal max = 0.0;
+
+    PointMap::const_iterator i = constBegin();
+    if (i != constEnd()) {
+        max = i.value();
+    }
+
+    for (; i != constEnd(); ++i) {
+        max = qMax(max, i.value());
+    }
+
+    return max;
+}
+
 qreal PointMap::interpolate(qreal x, PointMap::InterpolationType type) const
 {
     if (contains(x))

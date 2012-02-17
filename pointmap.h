@@ -22,11 +22,17 @@ public:
     bool loadFile(const QString &filePath, int xIndex = 0, int yIndex = 1, const QRegExp &sep = QRegExp("\\s+"));
 
 
-    // la plus petite valeur x
+    // la plus petite valeur x, retourne 0.0 si vide
     qreal xMinimum() const;
 
     // la plus grande valeur x
     qreal xMaximum() const;
+
+    // la plus petite valeur en y
+    qreal yMinimum() const;
+
+    // la plus grande valeur en y
+    qreal yMaximum() const;
 
     enum InterpolationType {
 
