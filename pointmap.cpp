@@ -227,6 +227,21 @@ qreal PointMap::integrate(qreal a, qreal b) const
     return result + (x2-x1) * (y1+y2) / 2.0;
 }
 
+PointMap PointMap::operator *(const PointMap &other) const
+{
+    PointMap ret;
+
+    for (PointMap::const_iterator i = constBegin(); i != constEnd(); ++i) {
+        ret[i.key()] = i.value() * other.interpolate(i.key());
+    }
+
+    for (PointMap::const_iterator i = other.constBegin(); i != other.constEnd(); ++i) {
+        ret[i.key()] = i.value() * interpolate(i.key());
+    }
+
+    return ret;
+}
+
 qreal PointMap::interpolate2(qreal x) const
 {
     // retourne l'élément plus grand que x

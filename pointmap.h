@@ -64,6 +64,13 @@ public:
     // interpole linéairement pour integré (relie les point par des droites pour calculer l'aire)
     qreal integrate(qreal a, qreal b) const;
 
+
+    /*                 OPERATOR *
+      crée un nouveau PointMap en multipliant chaque points de chaq'un des deux PointMap ensemble.
+      le produit a en principe plus de valeurs que les deux facteurs.
+      */
+    PointMap operator *(const PointMap &other) const;
+
 private:
     qreal interpolate2(qreal x) const;
     qreal interpolate4(qreal x) const;
