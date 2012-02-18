@@ -71,6 +71,11 @@ public:
       */
     PointMap operator *(const PointMap &other) const;
 
+    /*                 OPERATOR /=
+      divise chaque valeur par f
+      */
+    PointMap &operator /=(qreal f);
+
 private:
     qreal interpolate2(qreal x) const;
     qreal interpolate4(qreal x) const;

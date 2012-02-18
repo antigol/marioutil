@@ -242,6 +242,15 @@ PointMap PointMap::operator *(const PointMap &other) const
     return ret;
 }
 
+PointMap &PointMap::operator /=(qreal f)
+{
+    for (PointMap::iterator i = begin(); i != end(); ++i) {
+        i.value() /= f;
+    }
+
+    return *this;
+}
+
 qreal PointMap::interpolate2(qreal x) const
 {
     // retourne l'élément plus grand que x
