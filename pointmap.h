@@ -15,7 +15,11 @@ public:
     PointMap(const QMap<qreal, qreal> &other);
     ~PointMap();
 
+    /*     TO POINT LIST
+      Convertit le PointMap en PointList
+     */
     QList<QPointF> toPointList() const;
+    PointMap fromPointList(const QList<QPointF> &other);
 
     // charge un fichier à colonnes séparées par un espace
     // xIndex et yIndex sont les numéros des colonnes
@@ -68,13 +72,27 @@ public:
     /*                 OPERATOR *
       crée un nouveau PointMap en multipliant chaque points de chaq'un des deux PointMap ensemble.
       le produit a en principe plus de valeurs que les deux facteurs.
-      */
+     */
+    PointMap &operator *=(const PointMap &other);
     PointMap operator *(const PointMap &other) const;
 
-    /*                 OPERATOR /=
+    /*                 OPERATOR /
+      comme le * mais divise
+     */
+    PointMap &operator /=(const PointMap &other);
+    PointMap operator /(const PointMap &other) const;
+
+    /*                 OPERATOR *k
+      multiplie chaque valeur par k
+     */
+    PointMap &operator *=(qreal k);
+    PointMap operator *(qreal k) const;
+
+    /*                 OPERATOR /k
       divise chaque valeur par f
-      */
+     */
     PointMap &operator /=(qreal f);
+    PointMap operator /(qreal f) const;
 
 private:
     qreal interpolate2(qreal x) const;

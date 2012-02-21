@@ -36,6 +36,15 @@ QList<QPointF> PointMap::toPointList() const
     return ret;
 }
 
+PointMap PointMap::fromPointList(const QList<QPointF> &other)
+{
+    PointMap ret;
+    for (int i = other.size() - 1; i >= 0; --i) {
+        ret[other[i].x()] = other[i].y();
+    }
+    return ret;
+}
+
 bool PointMap::loadFile(const QString &filePath, int xIndex, int yIndex, const QRegExp &sep)
 {
     // ouvre le fichier
@@ -227,6 +236,11 @@ qreal PointMap::integrate(qreal a, qreal b) const
     return result + (x2-x1) * (y1+y2) / 2.0;
 }
 
+PointMap &PointMap::operator *=(const PointMap &other)
+{
+    return (*this = *this * other);
+}
+
 PointMap PointMap::operator *(const PointMap &other) const
 {
     PointMap ret;
@@ -236,19 +250,62 @@ PointMap PointMap::operator *(const PointMap &other) const
     }
 
     for (PointMap::const_iterator i = other.constBegin(); i != other.constEnd(); ++i) {
-        ret[i.key()] = i.value() * interpolate(i.key());
+        ret[i.key()] = interpolate(i.key()) * i.value();
     }
 
     return ret;
 }
 
-PointMap &PointMap::operator /=(qreal f)
+PointMap &PointMap::operator /=(const PointMap &other)
+{
+    return (*this = *this / other);
+}
+
+PointMap PointMap::operator /(const PointMap &other) const
+{
+    PointMap ret;
+
+    for (PointMap::const_iterator i = constBegin(); i != constEnd(); ++i) {
+        ret[i.key()] = i.value() / other.interpolate(i.key());
+    }
+
+    for (PointMap::const_iterator i = other.constBegin(); i != other.constEnd(); ++i) {
+        ret[i.key()] = interpolate(i.key()) / i.value();
+    }
+
+    return ret;
+}
+
+PointMap &PointMap::operator *=(qreal k)
 {
     for (PointMap::iterator i = begin(); i != end(); ++i) {
-        i.value() /= f;
+        i.value() *= k;
     }
 
     return *this;
+}
+
+PointMap PointMap::operator *(qreal k) const
+{
+    PointMap ret = *this;
+
+    return ret *= k;
+}
+
+PointMap &PointMap::operator /=(qreal k)
+{
+    for (PointMap::iterator i = begin(); i != end(); ++i) {
+        i.value() /= k;
+    }
+
+    return *this;
+}
+
+PointMap PointMap::operator /(qreal k) const
+{
+    PointMap ret = *this;
+
+    return ret /= k;
 }
 
 qreal PointMap::interpolate2(qreal x) const
