@@ -19,7 +19,7 @@ public:
       Convertit le PointMap en PointList
      */
     QList<QPointF> toPointList() const;
-    PointMap fromPointList(const QList<QPointF> &other);
+    static PointMap fromPointList(const QList<QPointF> &other);
 
     // charge un fichier à colonnes séparées par un espace
     // xIndex et yIndex sont les numéros des colonnes

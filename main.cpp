@@ -52,35 +52,43 @@ int main()
         return 0;
     }*/
     {
-        PointMap pl;
 
-        if (!pl.loadFile("test.csv")) {
+        PointMap p;
+
+        QList<QPointF> l;
+        l << QPointF(1, 2);
+        l << QPointF(2, 4);
+
+        p = PointMap::fromPointList(l);
+        qDebug() << p;
+
+        if (!p.loadFile("test.csv")) {
             qDebug() << "load error !";
             return 1;
         }
 
-        qDebug() << pl;
+        qDebug() << p;
         return 0;
         // interpole 10 fois entre chaque points
-        qreal step = (pl.xMaximum() - pl.xMinimum()) / (pl.size() * 10.0);
+        qreal step = (p.xMaximum() - p.xMinimum()) / (p.size() * 10.0);
 
-        for (qreal x = pl.xMinimum(); x <= pl.xMaximum(); x += step) {
+        for (qreal x = p.xMinimum(); x <= p.xMaximum(); x += step) {
             std::cout << x
-                      << " " << pl.interpolate(x, PointMap::Interpolation2)
-                      << " " << pl.interpolate(x, PointMap::Interpolation4)
-                      << " " << pl.interpolate(x, PointMap::Interpolation6)
-                      << " " << pl.spline(x)
+                      << " " << p.interpolate(x, PointMap::Interpolation2)
+                      << " " << p.interpolate(x, PointMap::Interpolation4)
+                      << " " << p.interpolate(x, PointMap::Interpolation6)
+                      << " " << p.spline(x)
                       << std::endl;
         }
 
-        pl.clear();
-        pl[0] = 1;
-        pl[5] = 2;
-        pl.insertMulti(5, 3);
-        pl[10] = 1;
-        qDebug() << pl;
+        p.clear();
+        p[0] = 1;
+        p[5] = 2;
+        p.insertMulti(5, 3);
+        p[10] = 1;
+        qDebug() << p;
 
-        qDebug() << "itegral = " << pl.integrate(0, 10);
+        qDebug() << "itegral = " << p.integrate(0, 10);
     }
     return 0;
 }
