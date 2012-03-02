@@ -13,7 +13,10 @@ HEADERS += \
     cmdlineparser.h \
     gslfunction.h
 
-LIBS += -lgsl -lgslcblas
+
+# commenter NOSPLINE et decommenter LIBS pour avoir les spline avec pointmap
+DEFINES += NOSPLINE
+#LIBS += -lgsl -lgslcblas
 
 
 
@@ -23,3 +26,5 @@ headers.files = $$HEADERS
 headers.path = /usr/local/include/marioutil
 
 INSTALLS += target headers
+
+

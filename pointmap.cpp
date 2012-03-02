@@ -6,22 +6,30 @@
 #include <QDebug>
 
 PointMap::PointMap()
-    : QMap<qreal, qreal>(), _acc(0), _spline(0)
+    : QMap<qreal, qreal>()
+      #ifndef NOSPLINE
+      , _acc(0), _spline(0)
+      #endif
 {
 }
 
 PointMap::PointMap(const QMap<qreal, qreal> &other)
-    : QMap<qreal, qreal>(other), _acc(0), _spline(0)
+    : QMap<qreal, qreal>(other)
+    #ifndef NOSPLINE
+    , _acc(0), _spline(0)
+    #endif
 {
 }
 
 PointMap::~PointMap()
 {
+#ifndef NOSPLINE
     if (_spline != 0)
         gsl_spline_free(_spline);
 
     if (_acc != 0)
         gsl_interp_accel_free(_acc);
+#endif
 }
 
 QList<QPointF> PointMap::toPointList() const
@@ -160,6 +168,7 @@ qreal PointMap::interpolate(qreal x, PointMap::InterpolationType type) const
     return interpolate6(x);
 }
 
+#ifndef NOSPLINE
 void PointMap::calculateSpline()
 {
     // supprime l'ancienne spline
@@ -204,6 +213,7 @@ qreal PointMap::spline(qreal x)
 
     return gsl_spline_eval(_spline, x, _acc);
 }
+#endif
 
 qreal PointMap::integrate(qreal a, qreal b) const
 {

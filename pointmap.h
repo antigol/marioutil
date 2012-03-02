@@ -3,7 +3,10 @@
 
 #include <QMap>
 #include <QRegExp>
-#include <gsl/gsl_spline.h>
+
+#ifndef NOSPLINE
+#   include <gsl/gsl_spline.h>
+#endif
 
 #include <QList>
 #include <QPointF>
@@ -56,12 +59,14 @@ public:
     qreal interpolate(qreal x, InterpolationType type = Interpolation2) const;
 
 
+#ifndef NOSPLINE
     // calculateSpline calcule la courbe spline avec les éléments actuels
     void calculateSpline();
 
     // spline retourne chaque valeur de la spline calculée à l'aide de calculateSpline
     // si aucune spline n'a été calulée il lance calculateSpline automatiquement
     qreal spline(qreal x);
+#endif
 
 
     // intègre sur l'intervale [a,b]
@@ -99,8 +104,10 @@ private:
     qreal interpolate4(qreal x) const;
     qreal interpolate6(qreal x) const;
 
+#ifndef NOSPLINE
     gsl_interp_accel *_acc;
     gsl_spline *_spline;
+#endif
 };
 
 #endif // POINTMAP_H
